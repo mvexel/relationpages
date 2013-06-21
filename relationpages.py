@@ -8,7 +8,7 @@ import string
 from datetime import datetime
 import states
 
-basepath = "/home/ubuntu/www/relations"
+basepath = "/home/ubuntu/www/relationpages"
 statsfile = "/mnt/mr_data/usrouterelations.csv"
 keys = ['id','version','user_id', 'tstamp','changeset_id','name','ref','network']
 interstates = []
@@ -70,7 +70,7 @@ def generate_header(title, caption):
     return '''<!DOCTYPE html><html lang="en"><head>
     <meta charset="utf-8">
     <title>relations viewer - %s</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css">
     <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.2.min.js"></script>
     <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>    
@@ -88,15 +88,13 @@ def generate_header(title, caption):
             "oSearch": {"bSmart": false}
         });
         dt.fnFilter("^" + filter_value + "$");
-        //var settings = dt.fnSettings();
-        //settings.aoPreSearchCols[1].sSearch = "^\\s*"+'1'+"\\s*$";
-        //settings.aoPreSearchCols[1].bRegex = false;
-        //settings.aoPreSearchCols[1].bSmart = false;
+        var settings = dt.fnSettings();
+        settings.aoPreSearchCols[1].bRegex = false;
     })</script>
-    </head><body><h1>%s</h1><p><em>%s</em></p><div id='title'><img src="relationinfo_150.png"><div id='ttext'>OSM US<br />RelationInfo</div></div>''' % (title, title, caption,)
+    </head><body><h1>%s</h1><p><em>%s</em></p><div id='title'><img src="images/relationinfo_150.png"><div id='ttext'>OSM US<br />relation pages</div></div>''' % (title, title, caption,)
 
 def generate_footer():
-    return '<hr><small>generated at %s - gets refreshed every 4 hours based on latest OSM data - a thing by Martijn van Exel - thanks jquery and <a href="http://www.datatables.net/index">datatables</a></small></body></html>' % (str(datetime.now()),)
+    return '<br /><hr><small>generated at %s - gets refreshed every 4 hours based on latest OSM data - a thing by Martijn van Exel - thanks jquery and <a href="http://www.datatables.net/index">datatables</a></small></body></html>' % (str(datetime.now()),)
 
 def generate_page(relations, title, caption):
     filename = path.join(basepath, ''.join(c for c in title if c in valid_chars).lower() + '.html')
@@ -125,9 +123,6 @@ if __name__ == "__main__":
     print "substateroutes:"
     for key in sorted(substateroutes.keys()):
         print "%s : %i" % (key, len(substateroutes[key]))
-    #for interstate in interstates:
-    #    code = generate_reltable(interstates)
-    #    print code
     generate_page(interstates, "Interstates", "The U.S. Interstate route relations")
     generate_page(usroutes, "U.S. Routes", "The U.S. Route relations")
     for abbrev, relations in stateroutes.iteritems():
