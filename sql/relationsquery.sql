@@ -1,0 +1,1 @@
+copy (select id, version, user_id, tstamp, changeset_id, tags->'name' "name", tags->'ref' "ref", tags->'network' "network" from relations where tags->'type' = 'route' and tags->'route' = 'road' and tags->'network' ~ 'US:.+') to '/data/01/martijn/usrouterelations.csv' csv;
