@@ -94,7 +94,7 @@ def generate_header(title, caption):
     </head><body><h1>%s</h1><p><em>%s</em></p><div id='title'><img src="images/relationinfo_150.png"><div id='ttext'>OSM US<br />relation pages</div></div>''' % (title, title, caption,)
 
 def generate_footer():
-    return '<br /><hr><small>generated at %s - gets refreshed every 4 hours based on latest OSM data - a thing by Martijn van Exel - thanks jquery and <a href="http://www.datatables.net/index">datatables</a></small></body></html>' % (str(datetime.now()),)
+    return '<br /><hr><small>generated at %s - gets refreshed every 4 hours based on latest OSM data - <a href="https://github.com/mvexel/relationpages">this on github</a> - thanks jquery and <a href="http://www.datatables.net/index">datatables</a></small></body></html>' % (str(datetime.now()),)
 
 def generate_page(relations, title, caption):
     filename = path.join(basepath, ''.join(c for c in title if c in valid_chars).lower() + '.html')
