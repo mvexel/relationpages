@@ -3,11 +3,13 @@ relationpages
 
 generates pages with relation info / links for U.S.  numbered route relations.
 
-#demo
+##demo
 
 [here](http://maproulette.org/relationpages/interstates.html)
 
-#have this
+##set it up
+
+###have this
 
 You need two servers: 
 
@@ -16,7 +18,7 @@ You need two servers:
 
 these can very well be on the same machine. i am going to assume ubuntu linux for the os.
 
-#do this 
+###do this 
 
 * edit the sql script `sql/relationsquery.sql` so that the output file `usrouterelations.csv` is stored in a place where whoever you will be running the python script as can get to it.
 * set up a cron job to run the query in `sql/relationsquery.sql` every few hours or so.
