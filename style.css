@@ -1,0 +1,18 @@
+body {font-family:helvetica,sans-serif}
+a {color:black;target-name:new;target-new: tab}
+a:visited {color:dimgrey}
+a:hover {background-color:gold}
+#title {
+  font-size: 24px;
+  display:block;
+  position:absolute;
+  top:10px;
+  right:10px;
+  height:75px;
+  width:300px;
+  border:1px solid black;
+  overflow:hidden;
+  background-color:#eeeeee;
+}
+img {vertical-align:middle;float:left}
+#ttext {padding:10px 0px;}
