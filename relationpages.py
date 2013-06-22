@@ -16,6 +16,7 @@ usroutes = []
 stateroutes = defaultdict(list)
 substateroutes = defaultdict(list)
 weirdroutes = []
+pages = {}
 valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
 
 def load_routes(statsfile):
@@ -46,6 +47,7 @@ def generate_relationrow(relation):
     code += '''<td>%s</td>
         <td>%s</td>
         <td><a target="_new" href='http://www.openstreetmap.org/browse/relation/%s'>%s</a></td>
+        <td>%s</td>
         <td><a target="_new" href='http://ra.osmsurround.org/analyze.jsp?relationId=%s'>check</a></td>
         <td><a target="_new" href='http://osm.cdauth.eu/route-manager/relation.jsp?id=%s'>manage</a></td>
         <td><a target="_new" href='http://localhost:8111/import?url=http://api.openstreetmap.org/api/0.6/relation/%s/full'>josm</a></td>
@@ -56,6 +58,7 @@ def generate_relationrow(relation):
                 relation['ref'],
                 relation['id'], 
                 relation['id'], 
+                str(datetime.strptime(relation['tstamp'], '%Y-%m-%d %H:%M:%S')),
                 relation['id'],
                 relation['id'],
                 relation['id'],
@@ -82,8 +85,8 @@ def generate_header(title, caption):
             "sPaginationType": "full_numbers",
             "iDisplayLength": 50,
             "aoColumnDefs": [
-                {"bSearchable": false, "aTargets": [2,3,4,5,6,7,8]},
-                {"bSortable": false, "aTargets": [3,4,5,6,7,8]}
+                {"bSearchable": false, "aTargets": [2,3,4,5,6,7,8,9]},
+                {"bSortable": false, "aTargets": [4,5,6,7,8,9]}
             ],
             "oSearch": {"bSmart": false}
         });
@@ -91,10 +94,30 @@ def generate_header(title, caption):
         var settings = dt.fnSettings();
         settings.aoPreSearchCols[1].bRegex = false;
     })</script>
-    </head><body><h1>%s</h1><p><em>%s</em></p><div id='title'><img src="images/relationinfo_150.png"><div id='ttext'>OSM US<br />relation pages</div></div>''' % (title, title, caption,)
+    </head>
+    <body>
+        <h1>%s</h1>
+        <p><em>%s</em></p>
+        <div id='title'>
+            <img src="images/relationinfo_150.png">
+            <div id='ttext'>
+                OSM US<br />relation pages
+            </div>
+        </div>
+    ''' % (title, title, caption,)
 
 def generate_footer():
-    return '<br /><hr><small>generated at %s - gets refreshed every 4 hours based on latest OSM data - <a href="https://github.com/mvexel/relationpages">this on github</a> - thanks jquery and <a href="http://www.datatables.net/index">datatables</a></small></body></html>' % (str(datetime.now()),)
+    return '''
+    <br />
+    <hr>
+    <small>
+        generated at %s - gets refreshed every 4 hours based on latest OSM data - 
+        <a href="https://github.com/mvexel/relationpages">this on github</a> - 
+        thanks jquery and <a href="http://www.datatables.net/index">datatables</a>
+    </small>
+    </body>
+    </html>
+''' % (str(datetime.now()),)
 
 def generate_page(relations, title, caption):
     filename = path.join(basepath, ''.join(c for c in title if c in valid_chars).lower() + '.html')
@@ -104,10 +127,11 @@ def generate_page(relations, title, caption):
     with open(filename, 'w') as htmlout:
         htmlout.write(html)
     print '%s written to %s.' % (title, filename)
+    return filename
 
 def generate_relationtable(relations):
     code = '<table id="relationsTable"><thead><tr>'
-    for key in ('Name','Ref','ID','check','manage','josm','history','view','gpx'):
+    for key in ('Name','Ref','ID','last touched', 'check','manage','josm','history','view','gpx'):
         code += '<th>%s</th>' % (key,)
     code += '</tr></thead><tbody>'
     for relation in relations:
@@ -115,22 +139,34 @@ def generate_relationtable(relations):
     code += '</tbody></table>'
     return code
 
+def generate_index(pagesdict):
+    for title, pages in pagesdict.iteritems():
+        print title
+        print len(pages)
+
 if __name__ == "__main__":
     load_routes(statsfile)
     print "%i interstates, %i US routes, %i state routes consumed" % (len(interstates), len(usroutes), len(stateroutes))
     print "%i weird" % (len(weirdroutes))
     print stateroutes.keys()
-    print "substateroutes:"
+    print "substateroutes (no pages for those for now):"
     for key in sorted(substateroutes.keys()):
         print "%s : %i" % (key, len(substateroutes[key]))
-    generate_page(interstates, "Interstates", "The U.S. Interstate route relations")
-    generate_page(usroutes, "U.S. Routes", "The U.S. Route relations")
+    interstatepages = []
+    interstatepages.append(generate_page(interstates, "Interstates", "The U.S. Interstate route relations"))
+    pages['Interstates'] = interstatepages
+    usroutepages = []
+    usroutepages.append(generate_page(usroutes, "U.S. Routes", "The U.S. Route relations"))
+    pages['U.S. Routes'] = usroutepages
+    stateroutepages = []
     for abbrev, relations in stateroutes.iteritems():
-        print 'processing %s' % (abbrev,)
         statename = abbrev
         if abbrev in states.states:
             statename = states.states[abbrev]
-        generate_page(relations, 
+        stateroutepages.append(generate_page(relations, 
                 "%s State Routes" % (statename), 
                 "%s State Route relations" % (statename)
-        )
+        ))
+    pages['State Routes'] = stateroutepages
+    generate_index(pages)
+    print "done."
